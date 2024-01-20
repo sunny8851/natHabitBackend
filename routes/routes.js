@@ -2,13 +2,7 @@ const router = require("express").Router();
 const { default: axios } = require("axios");
 require("dotenv").config();
 const APIKEY = process.env.APIKEY;
-const db = require("../helper/db");
-router.get("/User", (req, res) => {
-  res.json({
-    success: true,
-    message: "User route",
-  });
-});
+
 router.get("/city", (req, res) => {
   res.json({
     success: true,
@@ -16,28 +10,11 @@ router.get("/city", (req, res) => {
     data: cities,
   });
 });
-router.get("/savedcity", async (req, res) => {
-  const query = "SELECT * FROM savedCity";
-  try {
-    const getResult = await new Promise((resolve, reject) => {
-      db.query(query, (err, result) => {
-        if (err) {
-          console.error(err);
-          reject(err);
-        } else {
-          console.log(result);
-          resolve(result);
-        }
-      });
-    });
-    res.json({ success: true, data: getResult });
-  } catch (e) {
-    console.log(e);
-  }
-});
+
 router.post("/weather", async (req, res) => {
   try {
-    const cityName = req.body.city.key;
+    console.log("object", req.body.city);
+    const cityName = req.body.city;
     if (!cityName) {
       return res.status(400).json({ error: "City parameter is required." });
     }
@@ -51,29 +28,7 @@ router.post("/weather", async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
-router.post("/savecity", async (req, res) => {
-  try {
-    const insertResult = await new Promise((resolve, reject) => {
-      db.query(
-        "INSERT INTO savedCity SET ?",
-        { cityName: req.body.name },
-        (err, result) => {
-          if (err) {
-            console.error(err);
-            reject(err);
-          } else {
-            console.log(result);
-            resolve(result);
-          }
-        }
-      );
-    });
-    res.json({ success: true, name: req.body.name });
-  } catch (err) {
-    console.error(err);
-    res.json({ success: false, message: "Error while saving" });
-  }
-});
+
 module.exports = router;
 const cities = [
   "Tokyo",
@@ -96,9 +51,8 @@ const filterDataByDay = (data) => {
   const filteredData = [];
   const uniqueDays = new Set();
 
-  // Iterate through the data and include only the first entry for each day
   data.forEach((entry) => {
-    const day = entry.dt_txt.split(" ")[0]; // Assuming dt_txt contains date information
+    const day = entry.dt_txt.split(" ")[0];
 
     if (!uniqueDays.has(day)) {
       uniqueDays.add(day);
