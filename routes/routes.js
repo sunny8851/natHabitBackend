@@ -13,7 +13,7 @@ router.get("/city", (req, res) => {
 
 router.post("/weather", async (req, res) => {
   try {
-    console.log("object", req.body.city);
+    console.log("object", req.body.city.key);
     const cityName = req.body.city;
     if (!cityName) {
       return res.status(400).json({ error: "City parameter is required." });
